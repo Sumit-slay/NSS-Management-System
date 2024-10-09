@@ -1,0 +1,574 @@
+SHOW DATABASES;
+USE NSS1;
+SHOW TABLES;
+
+-- Describe all tables
+DESCRIBE USERS;
+DESCRIBE VOLUNTEERS;
+DESCRIBE ACTIVITY_DETAILS;
+DESCRIBE ACTIVITY;
+DESCRIBE ATTENDANCE_TRACKING;
+DESCRIBE ATTENDANCE;
+
+-- Select all rows from all tables
+SELECT * FROM USERS;
+SELECT * FROM VOLUNTEERS;
+SELECT * FROM ACTIVITY_DETAILS;
+SELECT * FROM ACTIVITY;
+SELECT * FROM ATTENDANCE_TRACKING;
+SELECT * FROM ATTENDANCE;
+
+-- Show all triggers
+SHOW TRIGGERS;
+
+SHOW PROCESSLIST;
+
+Enter password: *******
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 100
+Server version: 8.0.36 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| dbmslab            |
+| information_schema |
+| mysql              |
+| nss1                |
+| performance_schema |
+| student            |
+| sys                |
++--------------------+
+7 rows in set (0.06 sec)
+
+mysql> USE NSS1;
+Database changed
+mysql> CREATE TABLE USERS (
+    ->     username VARCHAR(50) NOT NULL,
+    ->     email VARCHAR(100) NOT NULL,
+    ->     password VARCHAR(255),
+    ->     userType ENUM('Volunteer','Team Leader','Guide','Administrator'),
+    ->     PRIMARY KEY (username, email),
+    ->     INDEX (email)  -- Add an index on the email column
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> CREATE TABLE VOLUNTEERS (
+    ->     EnrollmentID VARCHAR(20) NOT NULL,
+    ->     FirstName VARCHAR(50),
+    ->     MiddleName VARCHAR(50),
+    ->     LastName VARCHAR(50),
+    ->     Gender ENUM('Male','Female','Other'),
+    ->     DateOfBirth DATE,
+    ->     Branch VARCHAR(50),
+    ->     NSSUnitNumber VARCHAR(50),
+    ->     Community VARCHAR(50),
+    ->     PhoneNumber VARCHAR(15),
+    ->     EmailID VARCHAR(255),
+    ->     AadharNumber VARCHAR(20),
+    ->     Height DECIMAL(5,2),
+    ->     Weight DECIMAL(5,2),
+    ->     FatherName VARCHAR(100),
+    ->     Address VARCHAR(255),
+    ->     BloodGroup VARCHAR(5),
+    ->     PRIMARY KEY (EnrollmentID),
+    ->     FOREIGN KEY (EmailID) REFERENCES USERS(email)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> CREATE TABLE ACTIVITY_DETAILS (
+    ->     ActivityID INT NOT NULL,
+    ->     Description TEXT,
+    ->     Duration INT,
+    ->     Organizer VARCHAR(100),
+    ->     PRIMARY KEY (ActivityID)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> CREATE TABLE ACTIVITY (
+    ->     EnrollmentID VARCHAR(20) NOT NULL,
+    ->     ActivityID INT NOT NULL,
+    ->     Name VARCHAR(100),
+    ->     Description TEXT,
+    ->     Duration INT,
+    ->     Organizer VARCHAR(100),
+    ->     PRIMARY KEY (EnrollmentID, ActivityID),
+    ->     CONSTRAINT fk_activity FOREIGN KEY (ActivityID) REFERENCES ACTIVITY_DETAILS(ActivityID),
+    ->     CONSTRAINT fk_enrollment FOREIGN KEY (EnrollmentID) REFERENCES VOLUNTEERS(EnrollmentID)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> CREATE TABLE ATTENDANCE_TRACKING (
+    ->     EnrollmentID VARCHAR(20) NOT NULL,
+    ->     EventID INT NOT NULL,
+    ->     Date DATE,
+    ->     CheckInTime TIME,
+    ->     CheckOutTime TIME,
+    ->     Location VARCHAR(100),
+    ->     DailyHours INT,
+    ->     CONSTRAINT fk_attendance_tracking_activity FOREIGN KEY (EnrollmentID, EventID) REFERENCES ACTIVITY(EnrollmentID, Activity ID)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql>
+mysql> CREATE TABLE ATTENDANCE (
+    ->     EnrollmentID VARCHAR(20) NOT NULL,
+    ->     ActivityID INT NOT NULL,
+    ->     Name VARCHAR(100),
+    ->     Description TEXT,
+    ->     Duration INT,
+    ->     Organizer VARCHAR(100),
+    ->     Completed_hours INT,
+    ->     PRIMARY KEY (EnrollmentID, ActivityID),
+    ->     CONSTRAINT fk_attendance_activity FOREIGN KEY (EnrollmentID, ActivityID) REFERENCES ACTIVITY(EnrollmentID, Activity ID)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> SHOW TABLES;
++---------------------+
+| Tables_in_nss1      |
++---------------------+
+| activity            |
+| activity_details    |
+| attendance          |
+| attendance_tracking |
+| users               |
+| volunteers          |
++---------------------+
+6 rows in set (0.02 sec)
+
+
+mysql> DESCRIBE activity;
++--------------+--------------+------+-----+---------+-------+
+| Field        | Type         | Null | Key | Default | Extra |
++--------------+--------------+------+-----+---------+-------+
+| EnrollmentID | varchar(20)  | NO   | PRI | NULL    |       |
+| ActivityID   | int          | NO   | PRI | NULL    |       |
+| Name         | varchar(100) | YES  |     | NULL    |       |
+| Description  | text         | YES  |     | NULL    |       |
+| Duration     | int          | YES  |     | NULL    |       |
+| Organizer    | varchar(100) | YES  |     | NULL    |       |
++--------------+--------------+------+-----+---------+-------+
+6 rows in set (0.01 sec)
+
+mysql> DESCRIBE activity_details;
++-------------+--------------+------+-----+---------+-------+
+| Field       | Type         | Null | Key | Default | Extra |
++-------------+--------------+------+-----+---------+-------+
+| ActivityID  | int          | NO   | PRI | NULL    |       |
+| Description | text         | YES  |     | NULL    |       |
+| Duration    | int          | YES  |     | NULL    |       |
+| Organizer   | varchar(100) | YES  |     | NULL    |       |
++-------------+--------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> DESCRIBE attendance;
++-----------------+--------------+------+-----+---------+-------+
+| Field           | Type         | Null | Key | Default | Extra |
++-----------------+--------------+------+-----+---------+-------+
+| EnrollmentID    | varchar(20)  | NO   | PRI | NULL    |       |
+| ActivityID      | int          | NO   | PRI | NULL    |       |
+| Name            | varchar(100) | YES  |     | NULL    |       |
+| Description     | text         | YES  |     | NULL    |       |
+| Duration        | int          | YES  |     | NULL    |       |
+| Organizer       | varchar(100) | YES  |     | NULL    |       |
+| Completed_hours | int          | YES  |     | NULL    |       |
++-----------------+--------------+------+-----+---------+-------+
+7 rows in set (0.00 sec)
+
+mysql> DESCRIBE attendance_tracking;
++--------------+--------------+------+-----+---------+-------+
+| Field        | Type         | Null | Key | Default | Extra |
++--------------+--------------+------+-----+---------+-------+
+| EnrollmentID | varchar(20)  | NO   | MUL | NULL    |       |
+| EventID      | int          | NO   |     | NULL    |       |
+| Date         | date         | YES  |     | NULL    |       |
+| CheckInTime  | time         | YES  |     | NULL    |       |
+| CheckOutTime | time         | YES  |     | NULL    |       |
+| Location     | varchar(100) | YES  |     | NULL    |       |
+| DailyHours   | int          | YES  |     | NULL    |       |
++--------------+--------------+------+-----+---------+-------+
+7 rows in set (0.01 sec)
+
+mysql> DESCRIBE users;
++----------+---------------------------------------------------------+------+-----+---------+-------+
+| Field    | Type                                                    | Null | Key | Default | Extra |
++----------+---------------------------------------------------------+------+-----+---------+-------+
+| username | varchar(50)                                             | NO   | PRI | NULL    |       |
+| email    | varchar(100)                                            | NO   | PRI | NULL    |       |
+| password | varchar(255)                                            | YES  |     | NULL    |       |
+| userType | enum('Volunteer','Team Leader','Guide','Administrator') | YES  |     | NULL    |       |
++----------+---------------------------------------------------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> desc volunteers;
++---------------+-------------------------------+------+-----+---------+-------+
+| Field         | Type                          | Null | Key | Default | Extra |
++---------------+-------------------------------+------+-----+---------+-------+
+| EnrollmentID  | varchar(20)                   | NO   | PRI | NULL    |       |
+| FirstName     | varchar(50)                   | YES  |     | NULL    |       |
+| MiddleName    | varchar(50)                   | YES  |     | NULL    |       |
+| LastName      | varchar(50)                   | YES  |     | NULL    |       |
+| Gender        | enum('Male','Female','Other') | YES  |     | NULL    |       |
+| DateOfBirth   | date                          | YES  |     | NULL    |       |
+| Branch        | varchar(50)                   | YES  |     | NULL    |       |
+| NSSUnitNumber | varchar(50)                   | YES  |     | NULL    |       |
+| Community     | varchar(50)                   | YES  |     | NULL    |       |
+| PhoneNumber   | varchar(15)                   | YES  |     | NULL    |       |
+| EmailID       | varchar(255)                  | YES  | MUL | NULL    |       |
+| AadharNumber  | varchar(20)                   | YES  |     | NULL    |       |
+| Height        | decimal(5,2)                  | YES  |     | NULL    |       |
+| Weight        | decimal(5,2)                  | YES  |     | NULL    |       |
+| FatherName    | varchar(100)                  | YES  |     | NULL    |       |
+| Address       | varchar(255)                  | YES  |     | NULL    |       |
+| BloodGroup    | varchar(5)                    | YES  |     | NULL    |       |
++---------------+-------------------------------+------+-----+---------+-------+
+17 rows in set (0.01 sec)
+
+SELECT
+    CONSTRAINT_NAME,
+    TABLE_NAME,
+    COLUMN_NAME,
+    REFERENCED_TABLE_NAME,
+    REFERENCED_COLUMN_NAME
+FROM
+    INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+WHERE
+    TABLE_SCHEMA = 'nss1'
+    AND TABLE_NAME IN ('users', 'volunteers', 'activity', 'activity_details', 'attendance_tracking', 'attendance');
+
++---------------------------------+---------------------+--------------+-----------------------+------------------------+
+| CONSTRAINT_NAME                 | TABLE_NAME          | COLUMN_NAME  | REFERENCED_TABLE_NAME | REFERENCED_COLUMN_NAME |
++---------------------------------+---------------------+--------------+-----------------------+------------------------+
+| PRIMARY                         | activity            | EnrollmentID | NULL                  | NULL                   |
+| PRIMARY                         | activity            | ActivityID   | NULL                  | NULL                   |
+| fk_activity                     | activity            | ActivityID   | activity_details      | ActivityID             |
+| fk_enrollment                   | activity            | EnrollmentID | volunteers            | EnrollmentID           |
+| PRIMARY                         | activity_details    | ActivityID   | NULL                  | NULL                   |
+| PRIMARY                         | attendance          | EnrollmentID | NULL                  | NULL                   |
+| PRIMARY                         | attendance          | ActivityID   | NULL                  | NULL                   |
+| fk_attendance_activity          | attendance          | EnrollmentID | activity              | EnrollmentID           |
+| fk_attendance_activity          | attendance          | ActivityID   | activity              | ActivityID             |
+| fk_attendance_tracking_activity | attendance_tracking | EnrollmentID | activity              | EnrollmentID           |
+| fk_attendance_tracking_activity | attendance_tracking | EventID      | activity              | ActivityID             |
+| PRIMARY                         | users               | username     | NULL                  | NULL                   |
+| PRIMARY                         | users               | email        | NULL                  | NULL                   |
+| PRIMARY                         | volunteers          | EnrollmentID | NULL                  | NULL                   |
+| volunteers_ibfk_1               | volunteers          | EmailID      | users                 | email                  |
++---------------------------------+---------------------+--------------+-----------------------+------------------------+
+15 rows in set (0.03 sec)
+
+
+mysql> SELECT * FROM USERS;
++------------------------+-------------------------+-----------+---------------+
+| username               | email                   | password  | userType      |
++------------------------+-------------------------+-----------+---------------+
+| Girish N               | girish@gmail.com        | girish    | Administrator |
+| M M Chidvilas Chowdary | chiddy@gmail.com        | chidvilas | Volunteer     |
+| Rajesh K Gowda         | rajesh@gmail.com        | rajesh    | Volunteer     |
+| Sowmya K N             | sowmyakn@gmail.com      | sowmya    | Administrator |
+| Sumit M                | msumit@gmail.com        | sumit     | Volunteer     |
+| vasanth_sai            | vasanthsai141@gmail.com | vasanth   | Volunteer     |
++------------------------+-------------------------+-----------+---------------+
+6 rows in set (0.01 sec)
+
+mysql> SELECT * FROM VOLUNTEERS;
++--------------+-----------+------------+----------+--------+-------------+--------+---------------+-----------------+-------------+-------------------------+---------------+--------+--------+-----------------+-------------+------------+
+| EnrollmentID | FirstName | MiddleName | LastName | Gender | DateOfBirth | Branch | NSSUnitNumber | Community       | PhoneNumber | EmailID                 | AadharNumber  | Height | Weight | FatherName      | Address     | BloodGroup |
++--------------+-----------+------------+----------+--------+-------------+--------+---------------+-----------------+-------------+-------------------------+---------------+--------+--------+-----------------+-------------+------------+
+| 10           | Vasanth   | Sai        | T        | Male   | 2003-01-14  | ISE    | 3             | Social Service  | 7259175431  | vasanthsai141@gmail.com | 7257124797444 | 180.00 |  62.00 | Thirupathaiah T | Bengaluru   | A+         |
+| 11           | M         |            | Sumit    | Male   | 2003-11-16  | ISE    | 1             | Social Service  | 7259175455  | msumit@gmail.com        | 7211124797435 | 180.00 |  61.00 | Ramesh Jois     | Bidar       | B+         |
+| 12           | Rajesh    | K          | Gowda    | Male   | 2003-09-14  | ISE    | 1             | Charity Support | 8359175678  | rajesh@gmail.com        | 7200124797435 | 173.00 |  64.00 | Krishnappa      | Nelamangala | AB+        |
+| 13           | M M       | Chidvilas  | Chowdary | Male   | 2003-03-12  | ISE    | 3             | Social Service  | 7259175436  | chiddy@gmail.com        | 7257124797432 | 182.00 |  70.00 | Jagadish Reddy  | Tirupati    | AB+        |
++--------------+-----------+------------+----------+--------+-------------+--------+---------------+-----------------+-------------+-------------------------+---------------+--------+--------+-----------------+-------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM ACTIVITY_DETAILS;
++------------+---------------------------------+----------+-------------------------+
+| ActivityID | Description                     | Duration | Organizer               |
++------------+---------------------------------+----------+-------------------------+
+|        100 | Plant Adoption Drive            |       10 | Mr Girish N             |
+|        200 | Blood Donation Drive            |        2 | Mrs. Sukrutha C Basappa |
+|        300 | Road Safety Awareness Campaign  |        5 | Mrs Nagashree S         |
+|        400 | YFS Chotte Scientist            |       20 | Mrs Nagamani Purohit    |
+|        500 | Mental Health Awareness Program |        4 | Mrs Rekha P M           |
+|        600 | Anti-Ragging Campaign           |        2 | Dr Sowmya K N           |
+|        700 | Employment Opportunities Survey |        3 | Mrs Sahana V            |
++------------+---------------------------------+----------+-------------------------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT * FROM ACTIVITY;
++--------------+------------+-------------------------+---------------------------------+----------+-------------------------+
+| EnrollmentID | ActivityID | Name                    | Description                     | Duration | Organizer               |
++--------------+------------+-------------------------+---------------------------------+----------+-------------------------+
+| 10           |        300 | Vasanth Sai T           | Road Safety Awareness Campaign  |        5 | Mrs Nagashree S         |
+| 10           |        500 | Vasanth Sai T           | Mental Health Awareness Program |        4 | Mrs Rekha P M           |
+| 11           |        100 | M  Sumit                | Plant Adoption Drive            |       10 | Mr Girish N             |
+| 11           |        200 | M  Sumit                | Blood Donation Drive            |        2 | Mrs. Sukrutha C Basappa |
+| 12           |        400 | Rajesh  K Gowda         | YFS Chotte Scientist            |       20 | Mrs Nagamani Purohit    |
+| 13           |        600 | M M Chidvilas  Chowdary | Anti-Ragging Campaign           |        2 | Dr Sowmya K N           |
++--------------+------------+-------------------------+---------------------------------+----------+-------------------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM ATTENDANCE_TRACKING;
++--------------+---------+------------+-------------+--------------+------------------------------+------------+
+| EnrollmentID | EventID | Date       | CheckInTime | CheckOutTime | Location                     | DailyHours |
++--------------+---------+------------+-------------+--------------+------------------------------+------------+
+| 13           |     600 | 2024-03-07 | 13:40:00    | 16:40:00     | Govt School , Mallathahalli  |          3 |
+| 10           |     500 | 2024-03-08 | 13:19:00    | 17:22:00     | Govt School , Kengeri        |          4 |
+| 11           |     100 | 2024-03-01 | 13:20:00    | 20:20:00     | JSSATEB                      |          7 |
+| 12           |     400 | 2024-03-09 | 13:22:00    | 16:36:00     | Govt School , Papareddypalya |          3 |
++--------------+---------+------------+-------------+--------------+------------------------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM ATTENDANCE;
++--------------+------------+-------------------------+---------------------------------+----------+-------------------------+-----------------+
+| EnrollmentID | ActivityID | Name                    | Description                     | Duration | Organizer               | Completed_hours |
++--------------+------------+-------------------------+---------------------------------+----------+-------------------------+-----------------+
+| 10           |        300 | Vasanth Sai T           | Road Safety Awareness Campaign  |        5 | Mrs Nagashree S         |               0 |
+| 10           |        500 | Vasanth Sai T           | Mental Health Awareness Program |        4 | Mrs Rekha P M           |               4 |
+| 11           |        100 | M  Sumit                | Plant Adoption Drive            |       10 | Mr Girish N             |               7 |
+| 11           |        200 | M  Sumit                | Blood Donation Drive            |        2 | Mrs. Sukrutha C Basappa |               0 |
+| 12           |        400 | Rajesh  K Gowda         | YFS Chotte Scientist            |       20 | Mrs Nagamani Purohit    |               3 |
+| 13           |        600 | M M Chidvilas  Chowdary | Anti-Ragging Campaign           |        2 | Dr Sowmya K N           |               3 |
++--------------+------------+-------------------------+---------------------------------+----------+-------------------------+-----------------+
+6 rows in set (0.00 sec)
+
+mysql> SHOW TRIGGERS;
++------------------------+--------+---------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+------------------------+-----------------------------------------------------------------------------------------------------------------------+----------------+----------------------+----------------------+--------------------+
+| Trigger                | Event  | Table               | Statement                                                                                                                                                          | Timing | Created                | sql_mode
+                                                                                               | Definer        | character_set_client | collation_connection | Database Collation |
++------------------------+--------+---------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+------------------------+-----------------------------------------------------------------------------------------------------------------------+----------------+----------------------+----------------------+--------------------+
+| update_completed_hours | INSERT | attendance_tracking | BEGIN
+    UPDATE attendance
+    SET Completed_hours = Completed_hours + NEW.DailyHours
+    WHERE EnrollmentID = NEW.EnrollmentID AND ActivityID = NEW.EventID;
+END | AFTER  | 2024-03-02 15:40:50.98 | ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION | root@localhost | cp850                | cp850_general_ci     | utf8mb4_0900_ai_ci |
++------------------------+--------+---------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+------------------------+-----------------------------------------------------------------------------------------------------------------------+----------------+----------------------+----------------------+--------------------+
+1 row in set (0.06 sec)
+
+mysql>
+DELIMITER //
+
+CREATE TRIGGER update_completed_hours
+AFTER INSERT ON attendance_tracking
+FOR EACH ROW
+BEGIN
+    UPDATE attendance
+    SET Completed_hours = Completed_hours + NEW.DailyHours
+    WHERE EnrollmentID = NEW.EnrollmentID AND ActivityID = NEW.EventID;
+END;
+//
+
+DELIMITER ;
+
+-- This query retrieves information about the activities a volunteer (EnrollmentID = '11') has participated in,
+-- including the activity ID, description, total duration, completed hours, and percentage of work done.
+SELECT 
+    a.ActivityID,
+    ad.Description AS ActivityDescription,
+    ad.Duration AS TotalDuration,
+    SUM(IFNULL(at.Completed_hours, 0)) AS CompletedHours,
+    (SUM(IFNULL(at.Completed_hours, 0)) / ad.Duration) * 100 AS PercentageOfWorkDone
+FROM 
+    ACTIVITY a
+JOIN 
+    ACTIVITY_DETAILS ad ON a.ActivityID = ad.ActivityID
+LEFT JOIN 
+    ATTENDANCE at ON a.EnrollmentID = at.EnrollmentID AND a.ActivityID = at.ActivityID
+WHERE 
+    a.EnrollmentID = '11'
+GROUP BY 
+    a.ActivityID;
+
++------------+----------------------+---------------+----------------+----------------------+
+| ActivityID | ActivityDescription  | TotalDuration | CompletedHours | PercentageOfWorkDone |
++------------+----------------------+---------------+----------------+----------------------+
+|        100 | Plant Adoption Drive |            10 |              7 |              70.0000 |
+|        200 | Blood Donation Drive |             2 |              0 |               0.0000 |
++------------+----------------------+---------------+----------------+----------------------+
+
+
+-- This query retrieves all activities along with the count of volunteers participating in each activity.
+SELECT 
+    a.ActivityID,
+    ad.Description AS ActivityDescription,
+    COUNT(DISTINCT a.EnrollmentID) AS NumberOfVolunteers
+FROM 
+    ACTIVITY a
+JOIN 
+    ACTIVITY_DETAILS ad ON a.ActivityID = ad.ActivityID
+GROUP BY 
+    a.ActivityID, ad.Description;
+
++------------+---------------------------------+--------------------+
+| ActivityID | ActivityDescription             | NumberOfVolunteers |
++------------+---------------------------------+--------------------+
+|        100 | Plant Adoption Drive            |                  1 |
+|        200 | Blood Donation Drive            |                  1 |
+|        300 | Road Safety Awareness Campaign  |                  1 |
+|        400 | YFS Chotte Scientist            |                  1 |
+|        500 | Mental Health Awareness Program |                  1 |
+|        600 | Anti-Ragging Campaign           |                  1 |
++------------+---------------------------------+--------------------+
+
+
+-- This query identifies volunteers who have participated in multiple activities by counting the distinct activities for each volunteer.
+SELECT 
+    v.EnrollmentID,
+    v.FirstName,
+    v.LastName,
+    COUNT(DISTINCT a.ActivityID) AS NumActivities
+FROM 
+    VOLUNTEERS v
+JOIN 
+    ACTIVITY a ON v.EnrollmentID = a.EnrollmentID-
+GROUP BY 
+    v.EnrollmentID, v.FirstName, v.LastName
+HAVING 
+    COUNT(DISTINCT a.ActivityID) > 1;
+
++--------------+-----------+----------+---------------+
+| EnrollmentID | FirstName | LastName | NumActivities |
++--------------+-----------+----------+---------------+
+| 10           | Vasanth   | T        |             2 |
+| 11           | M         | Sumit    |             2 |
++--------------+-----------+----------+---------------+
+
+mysql> SHOW PROCESSLIST;
++----+-----------------+-----------------+------+---------+--------+------------------------+------------------+
+| Id | User            | Host            | db   | Command | Time   | State                  | Info             |
++----+-----------------+-----------------+------+---------+--------+------------------------+------------------+
+|  5 | event_scheduler | localhost       | NULL | Daemon  | 473514 | Waiting on empty queue | NULL             |
+| 10 | root            | localhost:56399 | nss1 | Query   |      0 | init                   | SHOW PROCESSLIST |
++----+-----------------+-----------------+------+---------+--------+------------------------+------------------+
+2 rows in set, 1 warning (0.00 sec)
+
+-- CREATE SP
+DELIMITER //
+
+CREATE PROCEDURE TotalVolunteersByNSSUnit()
+BEGIN
+    -- Declare variables
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE nssUnit VARCHAR(50);
+    DECLARE totalVolunteers INT;
+
+    -- Declare cursor for NSS unit numbers
+    DECLARE cur CURSOR FOR
+        SELECT DISTINCT NSSUnitNumber FROM VOLUNTEERS;
+
+    -- Declare continue handler
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Open the cursor
+    OPEN cur;
+
+    -- Start looping through NSS unit numbers
+    read_loop: LOOP
+        -- Fetch the next NSS unit number
+        FETCH cur INTO nssUnit;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Calculate the total number of volunteers for the current NSS unit number
+        SELECT COUNT(*) INTO totalVolunteers
+        FROM VOLUNTEERS
+        WHERE NSSUnitNumber = nssUnit;
+
+        -- Output the NSS unit number and total number of volunteers
+        SELECT nssUnit AS NSSUnitNumber, totalVolunteers AS TotalVolunteers;
+    END LOOP;
+
+    -- Close the cursor
+    CLOSE cur;
+END//
+
+DELIMITER ;
+
+-- INPUT STATEMENT
+-- To call the stored procedure, use the following statement:
+ CALL NSS1.TotalVolunteersByNSSUnit();
+
+-- SHOW ALL STORED PROCEDURES
+SHOW PROCEDURE STATUS WHERE Db = 'NSS1';
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE TotalVolunteersByNSSUnit()
+    -> BEGIN
+    ->     -- Declare variables
+    ->     DECLARE done INT DEFAULT FALSE;
+    ->     DECLARE nssUnit VARCHAR(50);
+    ->     DECLARE totalVolunteers INT;
+    ->
+    ->     -- Declare cursor for NSS unit numbers
+    ->     DECLARE cur CURSOR FOR
+    ->         SELECT DISTINCT NSSUnitNumber FROM VOLUNTEERS;
+    ->
+    ->     -- Declare continue handler
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    ->
+    ->     -- Open the cursor
+    ->     OPEN cur;
+    ->
+    ->     -- Start looping through NSS unit numbers
+    ->     read_loop: LOOP
+    ->         -- Fetch the next NSS unit number
+    ->         FETCH cur INTO nssUnit;
+    ->         IF done THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Calculate the total number of volunteers for the current NSS unit number
+    ->         SELECT COUNT(*) INTO totalVolunteers
+    ->         FROM VOLUNTEERS
+    ->         WHERE NSSUnitNumber = nssUnit;
+    ->
+    ->         -- Output the NSS unit number and total number of volunteers
+    ->         SELECT nssUnit AS NSSUnitNumber, totalVolunteers AS TotalVolunteers;
+    ->     END LOOP;
+    ->
+    ->     -- Close the cursor
+    ->     CLOSE cur;
+    -> END//
+Query OK, 0 rows affected (0.01 sec)
+mysql> DELIMITER ;
+mysql> CALL NSS1.TotalVolunteersByNSSUnit();
++---------------+-----------------+
+| NSSUnitNumber | TotalVolunteers |
++---------------+-----------------+
+| 3             |               3 |
++---------------+-----------------+
+1 row in set (0.00 sec)
+
++---------------+-----------------+
+| NSSUnitNumber | TotalVolunteers |
++---------------+-----------------+
+| 1             |               2 |
++---------------+-----------------+
+1 row in set (0.01 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> SHOW PROCEDURE STATUS WHERE Db = 'NSS1';
++------+--------------------------+-----------+----------------+---------------------+---------------------+---------------+---------+----------------------+----------------------+--------------------+
+| Db   | Name                     | Type      | Definer        | Modified            | Created             | Security_type | Comment | character_set_client | collation_connection | Database Collation |
++------+--------------------------+-----------+----------------+---------------------+---------------------+---------------+---------+----------------------+----------------------+--------------------+
+| nss1 | TotalVolunteersByNSSUnit | PROCEDURE | root@localhost | 2024-03-25 13:29:10 | 2024-03-25 13:29:10 | DEFINER       |         | cp850                | cp850_general_ci     | utf8mb4_0900_ai_ci |
++------+--------------------------+-----------+----------------+---------------------+---------------------+---------------+---------+----------------------+----------------------+--------------------+
+1 row in set (0.00 sec)
+
+mysql>
